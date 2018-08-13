@@ -40,13 +40,20 @@ public protocol Animal {
 
 /// Describes the state of domestication
 ///
-/// ### h3 _this is italics_
+/// _Italics_ are supported with a leading and trailing underscore
 ///
-/// # h1 **this is bold**
+/// **Bold** is supported with 2 leading and trailing asterisks
 ///
-/// ## h2 WHAT
+/// These are the supported headings using `#`:
 ///
-/// ###### h6
+/// # h1
+///
+/// ## h2
+///
+/// ### h3
+///
+/// #### h4
+///
 /// ---
 /// ***
 /// - domesticated: For animal that are domesticated.
