@@ -11,29 +11,6 @@ import MarkdownGenerator
 
 typealias SwiftDocDictionary = [String: Any]
 
-enum SwiftAccessLevel: String {
-    case `open`
-    case `public`
-    case `internal`
-    case `fileprivate`
-    case `private`
-    
-    init?(sourceKitAccessibility: String) {
-        let rawValue = sourceKitAccessibility.replacingOccurrences(of: "source.lang.swift.accessibility.", with: "")
-        self.init(rawValue: rawValue)
-    }
-    
-    func isGreaterThanOrEqual(to level: SwiftAccessLevel) -> Bool {
-        switch self {
-        case .open: return true
-        case .public: return level != .open
-        case .internal: return level != .open && level != .public
-        case .fileprivate: return level != .open && level != .public && level != .internal
-        case .private: return level != .open && level != .public && level != .internal && level != .fileprivate
-        }
-    }
-}
-
 extension Dictionary where Key == String, Value == Any {
     func isAccessible(for level: SwiftAccessLevel) -> Bool {
         guard let accessLevel = SwiftAccessLevel(sourceKitAccessibility: self[.accessibility] ?? "") else {
