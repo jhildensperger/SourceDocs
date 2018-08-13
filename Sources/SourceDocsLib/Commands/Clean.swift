@@ -16,8 +16,8 @@ struct CleanCommandOptions: OptionsProtocol {
 
     static func evaluate(_ mode: CommandMode) -> Result<CleanCommandOptions, CommandantError<SourceDocsError>> {
         return curry(self.init)
-            <*> mode <| Option(key: "output-folder", defaultValue: SourceDocs.defaultOutputDirectory,
-                               usage: "Output directory (defaults to \(SourceDocs.defaultOutputDirectory)).")
+            <*> mode <| Option(key: "output-folder", defaultValue: Constants.defaultOutputDirectory,
+                               usage: "Output directory (defaults to \(Constants.defaultOutputDirectory)).")
     }
 }
 

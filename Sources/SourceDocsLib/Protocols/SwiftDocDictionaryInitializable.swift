@@ -31,7 +31,7 @@ extension SwiftDocDictionaryInitializable {
     // MARK: - Public Properties
 
     var name: String {
-        return dictionary.get(.name) ?? "[NO NAME]"
+        return dictionary[.name] ?? "[NO NAME]"
     }
 
     var comment: String {
@@ -39,13 +39,13 @@ extension SwiftDocDictionaryInitializable {
     }
 
     var declaration: String {
-        let declaration: String = dictionary.get(.docDeclaration) ?? dictionary.get(.parsedDeclaration) ?? ""
+        let declaration: String = dictionary[.docDeclaration] ?? dictionary[.parsedDeclaration] ?? ""
 
         guard declaration.isEmpty else {
             return MarkdownCodeBlock(code: declaration, style: .backticks(language: "swift")).markdown
         }
 
-        guard let parseDeclaration: String = dictionary.get(.parsedDeclaration) else {
+        guard let parseDeclaration: String = dictionary[.parsedDeclaration] else {
             return ""
         }
         return MarkdownCodeBlock(code: parseDeclaration, style: .backticks(language: "swift")).markdown
@@ -53,11 +53,11 @@ extension SwiftDocDictionaryInitializable {
     }
 
     var debugInfo: [String: Any] {
-        let file = (dictionary.get(.filePath) ?? "").replacingOccurrences(of: FileManager.default.currentDirectoryPath, with: "")
+        let file = (dictionary[.filePath] ?? "").replacingOccurrences(of: FileManager.default.currentDirectoryPath, with: "")
 
         return [
             "name": name,
-            "declaration": dictionary.get(.parsedDeclaration) ?? "",
+            "declaration": dictionary[.parsedDeclaration] ?? "",
             "file": file,
             "isDocumented": !comment.isEmpty
         ]
@@ -66,14 +66,14 @@ extension SwiftDocDictionaryInitializable {
     // MARK: - Private Properties
 
     private var abstract: String? {
-        guard let text: String = dictionary.get(.docAbstract) else {
+        guard let text: String = dictionary[.docAbstract] else {
             return nil
         }
         return text
     }
 
     private var discussion: String? {
-        guard var xmlString: String = dictionary.get(.fullXMLDocs) else {
+        guard var xmlString: String = dictionary[.fullXMLDocs] else {
             return nil
         }
         
@@ -86,7 +86,7 @@ extension SwiftDocDictionaryInitializable {
         xmlString.replacingMatches(RegularExpression.link, with: "[$2]($1)")
         
         /// Replace all opening header tags with the cooresponding number of #'s
-        (1...6).forEach {
+        (1...4).forEach {
             let headerOpeningTag = "<rawHTML><![CDATA[<h\($0)>]]></rawHTML>"
             let replacement = String(repeating: "#", count: $0) + " "
             xmlString = xmlString.replacingOccurrences(of: headerOpeningTag, with: replacement)
@@ -166,7 +166,7 @@ extension SwiftDocDictionaryInitializable {
         var keyFound = false
         var string = ""
 
-        guard let discussions: [[String: String]] = dictionary.get(.docDiscussion) else {
+        guard let discussions: [[String: String]] = dictionary[.docDiscussion] else {
             return string
         }
 

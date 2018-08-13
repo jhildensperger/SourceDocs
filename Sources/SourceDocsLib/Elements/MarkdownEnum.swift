@@ -21,23 +21,24 @@ struct MarkdownEnum: SwiftDocDictionaryInitializable, MarkdownConvertible, Docum
         fatalError("Not supported")
     }
 
-    init?(dictionary: SwiftDocDictionary, options: MarkdownOptions) {
-        guard dictionary.hasPublicACL && dictionary.isKind([.enum]) else {
+    init?(dictionary: SwiftDocDictionary, options: MarkdownOptions, accessLevel: SwiftAccessLevel) {
+        
+        guard dictionary.isAccessible(for: accessLevel) && dictionary.isKind([.enum]) else {
             return nil
         }
         self.dictionary = dictionary
         self.options = options
 
-        if let structure: [SwiftDocDictionary] = dictionary.get(.substructure) {
+        if let structure: [SwiftDocDictionary] = dictionary[.substructure] {
             cases = structure.compactMap {
-                guard let substructure: [SwiftDocDictionary] = $0.get(.substructure),
+                guard let substructure: [SwiftDocDictionary] = $0[.substructure],
                     let first = substructure.first else {
                         return nil
                 }
                 return MarkdownEnumCaseElement(dictionary: first)
             }
-            properties = structure.compactMap { MarkdownVariable(dictionary: $0, options: options) }
-            methods = structure.compactMap { MarkdownMethod(dictionary: $0, options: options) }
+            properties = structure.compactMap { MarkdownVariable(dictionary: $0, options: options, accessLevel: accessLevel) }
+            methods = structure.compactMap { MarkdownMethod(dictionary: $0, options: options, accessLevel: accessLevel) }
         } else {
             cases = []
             properties = []
@@ -102,19 +103,19 @@ struct MarkdownEnum: SwiftDocDictionaryInitializable, MarkdownConvertible, Docum
         """
     }
 
-    func checkDocumentation() -> DocumentationStatus {
+    func getDocumentationStatus() -> DocumentationStatus {
         var status = DocumentationStatus(self)
 
         status += cases.reduce(DocumentationStatus(), { (status: DocumentationStatus, documentable) in
-            return status + documentable.checkDocumentation()
+            return status + documentable.getDocumentationStatus()
         })
 
         status += properties.reduce(DocumentationStatus(), { (status: DocumentationStatus, documentable) in
-            return status + documentable.checkDocumentation()
+            return status + documentable.getDocumentationStatus()
         })
 
         status += methods.reduce(DocumentationStatus(), { (status: DocumentationStatus, documentable) in
-            return status + documentable.checkDocumentation()
+            return status + documentable.getDocumentationStatus()
         })
 
         return status

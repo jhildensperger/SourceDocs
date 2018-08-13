@@ -16,7 +16,7 @@ struct VersionCommand: CommandProtocol {
     let function = "Display the current version of SourceDocs"
 
     func run(_ options: NoOptions<SourceDocsError>) -> Result<(), SourceDocsError> {
-        fputs("SourceDocs v\(SourceDocs.version)\n".cyan, stdout)
+        fputs("SourceDocs v\(Constants.version)\n".cyan, stdout)
         return .success(())
     }
 }
