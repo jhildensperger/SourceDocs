@@ -21,6 +21,7 @@ class MarkdownIndex: Writeable {
     let filePath: String
 
     private let filename: String
+    private let accessLevel: SwiftAccessLevel
     private var structs: [MarkdownObject] = []
     private var classes: [MarkdownObject] = []
     private var extensions: [MarkdownExtension] = []
@@ -28,27 +29,38 @@ class MarkdownIndex: Writeable {
     private var protocols: [MarkdownProtocol] = []
     private var typealiases: [MarkdownTypealias] = []
 
-    init(basePath: String, docs: [SwiftDocs], options: GenerateCommandOptions) {
+    init?(basePath: String, docs: [SwiftDocs], options: GenerateCommandOptions) {
         self.basePath = basePath
         self.filename = options.contentsFileName
         self.filePath = basePath + "/" + filename
-        self.process(docs: docs, options: options)
+        
+        guard let accessLevel = SwiftAccessLevel(rawValue: options.accessLevelString) else {
+            return nil
+        }
+        
+        self.accessLevel = accessLevel
+        
+        let markdownOptions = MarkdownOptions(collapsibleBlocks: options.collapsibleBlocks, tableOfContents: options.tableOfContents)
+        let dictionaries = docs.compactMap { $0.docsDictionary.bridge() as? SwiftDocDictionary }
+        
+        process(dictionaries: dictionaries, markdownOptions: markdownOptions)
     }
 
     func write() throws {
         let flattenedExtensions = self.flattenedExtensions()
+        let documenatables: [[Documentable]] =  [protocols, structs, classes, enums, flattenedExtensions, typealiases]
+        
+        printer.print("Generating Markdown documentation...\n".green, stdout)
 
-        fputs("Generating Markdown documentation...\n".green, stdout)
-
-        let status = [protocols, structs, classes, enums, flattenedExtensions, typealiases].compactMap {
-            guard let documentables = $0 as? [Documentable] else {
-                return nil
-            }
-
-            return documentables.reduce(DocumentationStatus()) { (result, documentable) in
-                return result + documentable.checkDocumentation()
+        let status = documenatables.compactMap {
+            $0.reduce(DocumentationStatus()) { (result, documentable) in
+                return result + documentable.getDocumentationStatus()
             }
             }.reduce(DocumentationStatus(), +)
+        
+        guard status.interfaceCount > 0 else {
+            throw NSError(domain: "No interfaces for the access level: ", code: 9999, userInfo: nil)
+        }
 
         let coverage = Int(status.precentage * 100)
 
@@ -56,9 +68,9 @@ class MarkdownIndex: Writeable {
             """
             # Reference Documentation
             This Reference Documentation has been generated with
-            [SourceDocs v\(SourceDocs.version)](https://github.com/jhildensperger/SourceDocs).
+            [SourceDocs v\(Constants.version)](https://github.com/jhildensperger/SourceDocs).
 
-            ![\(coverage)%](\(SourceDocs.defaultCoverageSvgFilename))
+            ![\(coverage)%](\(Constants.defaultCoverageSvgFilename))
             """
         ]
 
@@ -72,24 +84,22 @@ class MarkdownIndex: Writeable {
         try writeFile(file: CoverageBadge(coverage: coverage, basePath: basePath))
         try writeFile(file: MarkdownFile(filename: filename, basePath: basePath, content: content))
         try writeFile(file: DocumentationStatusFile(basePath: basePath, status: status))
-        fputs("Done 🎉\n".green, stdout)
+        printer.print("Done 🎉\n".green, stdout)
     }
 
-    func addItem(from dictionary: SwiftDocDictionary, options: GenerateCommandOptions) {
-        let markdownOptions = MarkdownOptions(collapsibleBlocks: options.collapsibleBlocks, tableOfContents: options.tableOfContents)
-
-        if let value: String = dictionary.get(.kind), let kind = SwiftDeclarationKind(rawValue: value) {
-            if kind == .struct, let item = MarkdownObject(dictionary: dictionary, options: markdownOptions) {
+    func addItem(from dictionary: SwiftDocDictionary, markdownOptions: MarkdownOptions) {
+        if let value: String = dictionary[.kind], let kind = SwiftDeclarationKind(rawValue: value) {
+            if kind == .struct, let item = MarkdownObject(dictionary: dictionary, options: markdownOptions, accessLevel: accessLevel) {
                 structs.append(item)
-            } else if kind == .class, let item = MarkdownObject(dictionary: dictionary, options: markdownOptions) {
+            } else if kind == .class, let item = MarkdownObject(dictionary: dictionary, options: markdownOptions, accessLevel: accessLevel) {
                 classes.append(item)
-            } else if let item = MarkdownExtension(dictionary: dictionary, options: markdownOptions) {
+            } else if let item = MarkdownExtension(dictionary: dictionary, options: markdownOptions, accessLevel: accessLevel) {
                 extensions.append(item)
-            } else if let item = MarkdownEnum(dictionary: dictionary, options: markdownOptions) {
+            } else if let item = MarkdownEnum(dictionary: dictionary, options: markdownOptions, accessLevel: accessLevel) {
                 enums.append(item)
-            } else if let item = MarkdownProtocol(dictionary: dictionary, options: markdownOptions) {
+            } else if let item = MarkdownProtocol(dictionary: dictionary, options: markdownOptions, accessLevel: accessLevel) {
                 protocols.append(item)
-            } else if let item = MarkdownTypealias(dictionary: dictionary, options: markdownOptions) {
+            } else if let item = MarkdownTypealias(dictionary: dictionary, options: markdownOptions, accessLevel: accessLevel) {
                 typealiases.append(item)
             }
         }
@@ -97,20 +107,15 @@ class MarkdownIndex: Writeable {
 
     // MARK: - Private
 
-    private func process(docs: [SwiftDocs], options: GenerateCommandOptions) {
-        let dictionaries = docs.compactMap { $0.docsDictionary.bridge() as? SwiftDocDictionary }
-        process(dictionaries: dictionaries, options: options)
+    private func process(dictionaries: [SwiftDocDictionary], markdownOptions: MarkdownOptions) {
+        dictionaries.forEach { process(dictionary: $0, markdownOptions: markdownOptions) }
     }
 
-    private func process(dictionaries: [SwiftDocDictionary], options: GenerateCommandOptions) {
-        dictionaries.forEach { process(dictionary: $0, options: options) }
-    }
-
-    private func process(dictionary: SwiftDocDictionary, options: GenerateCommandOptions) {
-        addItem(from: dictionary, options: options)
+    private func process(dictionary: SwiftDocDictionary, markdownOptions: MarkdownOptions) {
+        addItem(from: dictionary, markdownOptions: markdownOptions)
 
         if let substructure = dictionary[SwiftDocKey.substructure.rawValue] as? [SwiftDocDictionary] {
-            process(dictionaries: substructure, options: options)
+            process(dictionaries: substructure, markdownOptions: markdownOptions)
         }
     }
 
@@ -136,12 +141,12 @@ class MarkdownIndex: Writeable {
     }
 
     private func writeFile(file: Writeable) throws {
-        fputs("  Writing documentation file: \(file.filePath)", stdout)
+        printer.print("  Writing documentation file: \(file.filePath)", stdout)
         do {
             try file.write()
-            fputs(" ✔\n".green, stdout)
+            printer.print(" ✔\n".green, stdout)
         } catch let error {
-            fputs(" ❌\n", stdout)
+            printer.print(" ❌\n", stdout)
             throw error
         }
     }

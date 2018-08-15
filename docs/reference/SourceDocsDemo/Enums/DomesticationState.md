@@ -8,10 +8,16 @@ public enum DomesticationState
 
 > Describes the state of domestication
 >
-> ### h3 _this is italics_
-> # h1 __this is bold__
-> ## h2 WHAT
-> ###### h6
+> _Italics_ are supported with a leading and trailing underscore
+>
+> __Bold__ is supported with 2 leading and trailing asterisks
+>
+> These are the supported headings using `#`:
+>
+> # h1
+> ## h2
+> ### h3
+> #### h4
 > ---
 > ---
 >

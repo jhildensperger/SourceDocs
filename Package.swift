@@ -14,14 +14,15 @@ let package = Package(
         .package(url: "https://github.com/thoughtbot/Curry.git", from: "4.0.1"),
     ],
     targets: [
-        .target(name: "SourceDocs", dependencies: [
+        .target(name: "SourceDocsLib", dependencies: [
             "SourceKittenFramework",
             "MarkdownGenerator",
             "Rainbow",
             "Commandant",
             "Curry"
             ]),
-        .testTarget(name: "SourceDocsTests", dependencies: ["SourceDocs"]),
+        .target(name: "SourceDocs", dependencies: ["SourceDocsLib"]),
+        .testTarget(name: "SourceDocsTests", dependencies: ["SourceDocsLib"]),
         .target(name: "SourceDocsDemo", dependencies: []),
     ]
 )

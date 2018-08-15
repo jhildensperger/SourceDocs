@@ -19,17 +19,17 @@ struct MarkdownMethod: SwiftDocDictionaryInitializable, MarkdownConvertible, Doc
         fatalError("Not supported")
     }
 
-    init?(dictionary: SwiftDocDictionary, options: MarkdownOptions) {
+    init?(dictionary: SwiftDocDictionary, options: MarkdownOptions, accessLevel: SwiftAccessLevel) {
         let methods: [SwiftDeclarationKind] = [
             .functionMethodInstance, .functionMethodStatic, .functionMethodClass
         ]
-        guard dictionary.hasPublicACL && dictionary.isKind(methods) else {
+        guard dictionary.isAccessible(for: accessLevel) && dictionary.isKind(methods) else {
             return nil
         }
         self.dictionary = dictionary
         self.options = options
 
-        if let params: [SwiftDocDictionary] = dictionary.get(.docParameters) {
+        if let params: [SwiftDocDictionary] = dictionary[.docParameters] {
             parameters = params.compactMap { MarkdownMethodParameter(dictionary: $0) }
         } else {
             parameters = []

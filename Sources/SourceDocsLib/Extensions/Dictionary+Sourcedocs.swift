@@ -12,21 +12,23 @@ import MarkdownGenerator
 typealias SwiftDocDictionary = [String: Any]
 
 extension Dictionary where Key == String, Value == Any {
-    var hasPublicACL: Bool {
-        let accessLevel: String? = get(.accessibility)
-        return accessLevel == "source.lang.swift.accessibility.public" || accessLevel == "source.lang.swift.accessibility.open"
+    func isAccessible(for level: SwiftAccessLevel) -> Bool {
+        guard let accessLevel = SwiftAccessLevel(sourceKitAccessibility: self[.accessibility] ?? "") else {
+            return false
+        }
+        return accessLevel.isGreaterThanOrEqual(to: level)
     }
-
-    func get<T>(_ key: SwiftDocKey) -> T? {
+    
+    subscript<T>(_ key: SwiftDocKey) -> T? {
         return self[key.rawValue] as? T
     }
 
     func isKind(_ kind: SwiftDeclarationKind) -> Bool {
-        return SwiftDeclarationKind(rawValue: get(.kind) ?? "") == kind
+        return SwiftDeclarationKind(rawValue: self[.kind] ?? "") == kind
     }
     
     func isKind(_ kinds: [SwiftDeclarationKind]) -> Bool {
-        guard let value: String = get(.kind), let kind = SwiftDeclarationKind(rawValue: value) else {
+        guard let kind = SwiftDeclarationKind(rawValue: self[.kind] ?? "") else {
             return false
         }
         return kinds.contains(kind)

@@ -17,8 +17,8 @@ struct MarkdownVariable: SwiftDocDictionaryInitializable, MarkdownConvertible, D
         fatalError("Not supported")
     }
 
-    init?(dictionary: SwiftDocDictionary, options: MarkdownOptions) {
-        guard dictionary.hasPublicACL && dictionary.isKind([.varInstance, .varStatic, .varClass, .varParameter]) else {
+    init?(dictionary: SwiftDocDictionary, options: MarkdownOptions, accessLevel: SwiftAccessLevel) {
+        guard dictionary.isAccessible(for: accessLevel) && dictionary.isKind([.varInstance, .varStatic, .varClass, .varParameter]) else {
             return nil
         }
         self.dictionary = dictionary

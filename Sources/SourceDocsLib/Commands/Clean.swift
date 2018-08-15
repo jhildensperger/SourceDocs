@@ -16,8 +16,8 @@ struct CleanCommandOptions: OptionsProtocol {
 
     static func evaluate(_ mode: CommandMode) -> Result<CleanCommandOptions, CommandantError<SourceDocsError>> {
         return curry(self.init)
-            <*> mode <| Option(key: "output-folder", defaultValue: SourceDocs.defaultOutputDirectory,
-                               usage: "Output directory (defaults to \(SourceDocs.defaultOutputDirectory)).")
+            <*> mode <| Option(key: "output-folder", defaultValue: Constants.defaultOutputDirectory,
+                               usage: "Output directory (defaults to \(Constants.defaultOutputDirectory)).")
     }
 }
 
@@ -39,10 +39,10 @@ struct CleanCommand: CommandProtocol {
     static func removeReferenceDocs(docsPath: String) throws {
         var isDir: ObjCBool = false
         if FileManager.default.fileExists(atPath: docsPath, isDirectory: &isDir) {
-            fputs("Removing reference documentation at '\(docsPath)'...".green, stdout)
+            printer.print("Removing reference documentation at '\(docsPath)'...".green, stdout)
 
             guard let paths = try? FileManager.default.contentsOfDirectory(atPath: docsPath) else {
-                fputs(" ❌\n", stdout)
+                printer.print(" ❌\n", stdout)
                 throw NSError(domain: "file", code: 9999, userInfo: nil)
             }
 
@@ -51,14 +51,14 @@ struct CleanCommand: CommandProtocol {
                     guard path.first != "." else { continue }
                     try FileManager.default.removeItem(atPath: docsPath.appending("/\(path)"))
                 } catch let error {
-                    fputs(" ❌\n", stdout)
+                    printer.print(" ❌\n", stdout)
                     throw error
                 }
             }
 
-            fputs(" ✔".green + "\n", stdout)
+            printer.print(" ✔".green + "\n", stdout)
         } else {
-            fputs("Did not find any reference docs at '\(docsPath)'.\n", stdout)
+            printer.print("Did not find any reference docs at '\(docsPath)'.\n", stdout)
         }
     }
 

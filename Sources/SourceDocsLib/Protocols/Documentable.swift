@@ -8,11 +8,11 @@
 import Foundation
 
 protocol Documentable {
-    func checkDocumentation() -> DocumentationStatus
+    func getDocumentationStatus() -> DocumentationStatus
 }
 
 extension Documentable where Self: SwiftDocDictionaryInitializable {
-    func checkDocumentation() -> DocumentationStatus {
+    func getDocumentationStatus() -> DocumentationStatus {
         return DocumentationStatus(self)
     }
 }

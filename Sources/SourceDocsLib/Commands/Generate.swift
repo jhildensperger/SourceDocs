@@ -18,6 +18,7 @@ struct GenerateCommandOptions: OptionsProtocol {
     let outputDirectory: String
     let sourceDirectory: String?
     let contentsFileName: String
+    let accessLevelString: String
     let includeModuleNameInPath: Bool
     let clean: Bool
     let collapsibleBlocks: Bool
@@ -30,12 +31,14 @@ struct GenerateCommandOptions: OptionsProtocol {
                                usage: "Generate documentation for Swift Package Manager module.")
             <*> mode <| Option(key: "module-name", defaultValue: nil,
                                usage: "Generate documentation for a Swift module.")
-            <*> mode <| Option(key: "output", defaultValue: SourceDocs.defaultOutputDirectory,
-                               usage: "Output directory (defaults to \(SourceDocs.defaultOutputDirectory)).")
+            <*> mode <| Option(key: "output", defaultValue: Constants.defaultOutputDirectory,
+                               usage: "Output directory (defaults to \(Constants.defaultOutputDirectory)).")
             <*> mode <| Option(key: "source", defaultValue: nil,
                                usage: "Output directory (defaults to the current directory).")
-            <*> mode <| Option(key: "contents-filename", defaultValue: SourceDocs.defaultContentsFilename,
-                               usage: "Output file (defaults to \(SourceDocs.defaultContentsFilename)).")
+            <*> mode <| Option(key: "contents-filename", defaultValue: Constants.defaultContentsFilename,
+                               usage: "Output file (defaults to \(Constants.defaultContentsFilename)).")
+            <*> mode <| Option(key: "access-level", defaultValue: Constants.defaultAccessLevelString,
+                               usage: "Output directory (defaults to the current directory).")
             <*> mode <| Switch(flag: "m", key: "module-name-path",
                                usage: "Include the module name as part of the output folder path.")
             <*> mode <| Switch(flag: "c", key: "clean",
@@ -51,10 +54,10 @@ struct GenerateCommandOptions: OptionsProtocol {
 struct GenerateCommand: CommandProtocol {
     typealias Options = GenerateCommandOptions
 
-    private let initialPath = FileManager.default.currentDirectoryPath
-
     let verb = "generate"
     let function = "Generates the Markdown documentation"
+    
+    private let initialPath = FileManager.default.currentDirectoryPath
 
     func run(_ options: GenerateCommandOptions) -> Result<(), SourceDocsError> {
         do {
@@ -79,6 +82,8 @@ struct GenerateCommand: CommandProtocol {
             return Result.failure(SourceDocsError.internalError(message: error.localizedDescription))
         }
     }
+
+    // MARK:- Private
 
     private func parseSPMModule(moduleName: String) throws -> [SwiftDocs] {
         guard let docs = Module(spmName: moduleName)?.docs else {
@@ -113,7 +118,7 @@ struct GenerateCommand: CommandProtocol {
             try CleanCommand.removeReferenceDocs(docsPath: docsPath)
         }
 
-        try MarkdownIndex(basePath: docsPath, docs: docs, options: options).write()
+        try MarkdownIndex(basePath: docsPath, docs: docs, options: options)?.write()
     }
 
 }

@@ -13,7 +13,7 @@ struct CoverageBadge: Writeable {
     let basePath: String
 
     var filePath: String {
-        return basePath + "/" + SourceDocs.defaultCoverageSvgFilename
+        return basePath + "/" + Constants.defaultCoverageSvgFilename
     }
 
     private var colorForCoverage: String {
