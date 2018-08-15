@@ -50,7 +50,7 @@ class MarkdownIndex: Writeable {
         let flattenedExtensions = self.flattenedExtensions()
         let documenatables: [[Documentable]] =  [protocols, structs, classes, enums, flattenedExtensions, typealiases]
         
-        fputs("Generating Markdown documentation...\n".green, stdout)
+        printer.print("Generating Markdown documentation...\n".green, stdout)
 
         let status = documenatables.compactMap {
             $0.reduce(DocumentationStatus()) { (result, documentable) in
@@ -84,7 +84,7 @@ class MarkdownIndex: Writeable {
         try writeFile(file: CoverageBadge(coverage: coverage, basePath: basePath))
         try writeFile(file: MarkdownFile(filename: filename, basePath: basePath, content: content))
         try writeFile(file: DocumentationStatusFile(basePath: basePath, status: status))
-        fputs("Done 🎉\n".green, stdout)
+        printer.print("Done 🎉\n".green, stdout)
     }
 
     func addItem(from dictionary: SwiftDocDictionary, markdownOptions: MarkdownOptions) {
@@ -141,12 +141,12 @@ class MarkdownIndex: Writeable {
     }
 
     private func writeFile(file: Writeable) throws {
-        fputs("  Writing documentation file: \(file.filePath)", stdout)
+        printer.print("  Writing documentation file: \(file.filePath)", stdout)
         do {
             try file.write()
-            fputs(" ✔\n".green, stdout)
+            printer.print(" ✔\n".green, stdout)
         } catch let error {
-            fputs(" ❌\n", stdout)
+            printer.print(" ❌\n", stdout)
             throw error
         }
     }

@@ -9,14 +9,16 @@ import Foundation
 import Commandant
 import Rainbow
 
-public func run() {
+var printer: Printer = ConsolePrinter()
+
+public func run() -> Never {
     let registry = CommandRegistry<SourceDocsError>()
     registry.register(CleanCommand())
     registry.register(GenerateCommand())
     registry.register(VersionCommand())
     registry.register(HelpCommand(registry: registry))
-    
+
     registry.main(defaultVerb: "help") { error in
-        fputs("\(error.localizedDescription)\n)".red, stderr)
+        printer.print("\(error.localizedDescription)\n)".red, stderr)
     }
 }

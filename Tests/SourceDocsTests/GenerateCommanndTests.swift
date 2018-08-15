@@ -1,19 +1,15 @@
 //
-//  SourceDocsTests.swift
+//  GenerateCommanndTests.swift
 //  SourceDocsTests
 //
-//  Created by Jim Hildensperger on 13/08/2018.
+//  Created by Jim Hildensperger on 14/08/2018.
 //
 
+import Foundation
 import XCTest
 @testable import SourceDocsLib
 
 let tmpOutputDirectory = "tmp/test/"
-
-func setCommandLineArguments(_ arguments: String...) {
-    CommandLine.arguments.removeLast(CommandLine.arguments.count - 1)
-    CommandLine.arguments.append(contentsOf: arguments)
-}
 
 class GenerateCommandTests: XCTestCase {
     override func setUp() {
@@ -23,6 +19,8 @@ class GenerateCommandTests: XCTestCase {
     }
     
     func testGenerateOutput() {
+        printer = TestPrinter()
+        
         let options = GenerateCommandOptions(spmModule: "SourceDocsDemo",
                                              moduleName: nil,
                                              outputDirectory: tmpOutputDirectory,
@@ -37,11 +35,14 @@ class GenerateCommandTests: XCTestCase {
         
         let result = GenerateCommand().run(options)
         
+        switch result {
+        case .success: XCTAssert(true)
+        case .failure: XCTAssert(false)
+        }
+        
+        let testPrinter = printer as! TestPrinter
+        
+        XCTAssertEqual(testPrinter.outputs.count, 26)
         XCTAssert(FileManager.default.fileExists(atPath: tmpOutputDirectory))
-        XCTAssertNil(result.error)
     }
-}
-
-class SourceDocsTests: XCTestCase {
-
 }
