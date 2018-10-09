@@ -35,12 +35,8 @@ class MarkdownIndex: Writeable {
         self.process(docs: docs, options: options)
     }
 
-    func write() throws {
-        let flattenedExtensions = self.flattenedExtensions()
-
-        fputs("Generating Markdown documentation...\n".green, stdout)
-
-        let status = [protocols, structs, classes, enums, flattenedExtensions, typealiases].compactMap {
+    func documentationStatus() -> DocumentationStatus {
+        return [protocols, structs, classes, enums, flattenedExtensions, typealiases].compactMap {
             guard let documentables = $0 as? [Documentable] else {
                 return nil
             }
@@ -49,6 +45,14 @@ class MarkdownIndex: Writeable {
                 return result + documentable.checkDocumentation()
             }
             }.reduce(DocumentationStatus(), +)
+    }
+
+    func write() throws {
+        let flattenedExtensions = self.flattenedExtensions()
+
+        fputs("Generating Markdown documentation...\n".green, stdout)
+
+        let status = documentationStatus()
 
         guard let precentage = status.precentage else {
             throw NSError(domain: "No documentable interfaces", code: 0, userInfo: nil)

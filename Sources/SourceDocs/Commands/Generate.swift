@@ -20,6 +20,7 @@ struct GenerateCommandOptions: OptionsProtocol {
     let contentsFileName: String
     let includeModuleNameInPath: Bool
     let clean: Bool
+    let status: Bool
     let collapsibleBlocks: Bool
     let tableOfContents: Bool
     let xcodeArguments: [String]
@@ -40,6 +41,8 @@ struct GenerateCommandOptions: OptionsProtocol {
                                usage: "Include the module name as part of the output folder path.")
             <*> mode <| Switch(flag: "c", key: "clean",
                                usage: "Delete output folder before generating documentation.")
+            <*> mode <| Switch(flag: "s", key: "status",
+                               usage: "Only generate the documentation coverage report.")
             <*> mode <| Switch(flag: "l", key: "collapsible",
                                usage: "Put methods, properties and enum cases inside collapsible blocks.")
             <*> mode <| Switch(flag: "t", key: "table-of-contents",
@@ -113,7 +116,13 @@ struct GenerateCommand: CommandProtocol {
             try CleanCommand.removeReferenceDocs(docsPath: docsPath)
         }
 
-        try MarkdownIndex(basePath: docsPath, docs: docs, options: options).write()
+        let index = MarkdownIndex(basePath: docsPath, docs: docs, options: options)
+
+        if options.status {
+            fputs(index.documentationStatus().json().green, stdout)
+        } else {
+            try index.write()
+        }
     }
 
 }
