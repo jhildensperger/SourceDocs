@@ -100,12 +100,31 @@ struct GenerateCommand: CommandProtocol {
         }
         return docs
     }
+    
+    func runObjC(options: Options, args: [String]) -> Result<(), SourceDocsError> {
+        #if os(Linux)
+        fatalError("unsupported")
+        #else
+        if args.isEmpty {
+            return .failure(SourceDocsError.internalError(message: "at least 5 arguments are required when using `--objc`"))
+        }
+        let translationUnit = ClangTranslationUnit(headerFiles: [args[0]], compilerArguments: Array(args.dropFirst(1)))
+        print(translationUnit)
+        return .success(())
+        #endif
+    }
 
     private func parseXcodeProject(args: [String]) throws -> [SwiftDocs] {
-        guard let docs = Module(xcodeBuildArguments: args, name: nil)?.docs else {
+//        guard let docs = Module(xcodeBuildArguments: args, name: nil)?.docs else {
+//            throw SourceDocsError.internalError(message: "Error: Failed to generate documentation.")
+//        }
+        guard let objcDocs = ClangTranslationUnit(xcodeBuildArguments: args)?.declarations else {
             throw SourceDocsError.internalError(message: "Error: Failed to generate documentation.")
+//            return docs
         }
-        return docs
+        print(objcDocs)
+//        return docs
+        return []
     }
 
     private func generateDocumentation(docs: [SwiftDocs], options: GenerateCommandOptions, module: String = "") throws {
