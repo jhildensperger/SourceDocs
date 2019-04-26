@@ -8,10 +8,10 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/jhildensperger/SourceKitten.git", .branch("fix/comments")),
-        .package(url: "https://github.com/Carthage/Commandant.git", from: "0.13.0"),
+        .package(url: "https://github.com/Carthage/Commandant.git", from: "0.15.0"),
         .package(url: "https://github.com/eneko/MarkdownGenerator.git", from: "0.4.0"),
         .package(url: "https://github.com/onevcat/Rainbow", from: "3.0.0"),
-        .package(url: "https://github.com/thoughtbot/Curry.git", from: "4.0.1"),
+        .package(url: "https://github.com/thoughtbot/Curry.git", from: "4.0.2"),
     ],
     targets: [
         .target(name: "SourceDocs", dependencies: [

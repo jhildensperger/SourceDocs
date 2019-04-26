@@ -1,10 +1,10 @@
 TOOL_NAME = sourcedocs
-VERSION = 0.6.1
+VERSION = 0.6.2
 
 PREFIX = /usr/local
 INSTALL_PATH = $(PREFIX)/bin/$(TOOL_NAME)
 BUILD_PATH = .build/release/$(TOOL_NAME)
-TAR_FILENAME = $(TOOL_NAME)-$(VERSION).tar.gz
+TAR_FILENAME = $(VERSION).tar.gz
 
 .PHONY: build docs
 
@@ -25,8 +25,18 @@ lint:
 docs:
 	swift run sourcedocs generate --clean --spm-module SourceDocsDemo --output docs/reference/SourceDocsDemo
 
+xcode:
+	swift package generate-xcodeproj --enable-code-coverage
+	ruby Scripts/setupRunInXcode.rb
+
+linuxmain:
+	swift test --generate-linuxmain
+
+zip: build
+	zip -D $(TOOL_NAME).macos.zip $(BUILD_PATH)
+
 get_sha:
-	wget https://github.com/eneko/$(TOOL_NAME)/archive/$(VERSION).tar.gz -O $(TAR_FILENAME)
+	curl -OLs https://github.com/eneko/$(TOOL_NAME)/archive/$(VERSION).tar.gz
 	shasum -a 256 $(TAR_FILENAME)
 	rm $(TAR_FILENAME)
 

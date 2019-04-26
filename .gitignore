@@ -8,10 +8,12 @@
 /Packages
 /*.xcodeproj
 *.tar.gz
+*.zip
 
 ## Build generated
 build/
 DerivedData/
+Index/
 
 ## Various settings
 *.pbxuser
@@ -73,5 +75,5 @@ fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
 
-
-Index
+# code coverage
+default.profraw

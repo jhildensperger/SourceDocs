@@ -28,6 +28,7 @@ class MarkdownIndex: Writeable {
     private var enums: [MarkdownEnum] = []
     private var protocols: [MarkdownProtocol] = []
     private var typealiases: [MarkdownTypealias] = []
+    private var methods: [MarkdownMethod] = []
 
     init(basePath: String, docs: [SwiftDocs], options: GenerateCommandOptions) {
         self.basePath = basePath
@@ -74,6 +75,7 @@ class MarkdownIndex: Writeable {
         try content.append(writeAndIndexFiles(items: enums, collectionTitle: "Enums"))
         try content.append(writeAndIndexFiles(items: flattenedExtensions, collectionTitle: "Extensions"))
         try content.append(writeAndIndexFiles(items: typealiases, collectionTitle: "Typealiases"))
+        try content.append(writeAndIndexFiles(items: methods, to: docsPath, collectionTitle: "Methods"))
 
         try writeFile(file: CoverageBadge(coverage: coverage, basePath: basePath))
         try writeFile(file: MarkdownFile(filename: filename, basePath: basePath, content: content))
@@ -97,6 +99,8 @@ class MarkdownIndex: Writeable {
                 protocols.append(item)
             } else if let item = MarkdownTypealias(dictionary: dictionary, options: markdownOptions) {
                 typealiases.append(item)
+            } else if kind == .functionFree, let item = MarkdownMethod(dictionary: dictionary, options: markdownOptions) {
+                methods.append(item)
             }
         }
     }

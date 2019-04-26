@@ -1,8 +1,14 @@
+---
+title: SourceDocs
+permalink: /
+desc: Command Line Tool that generates Markdown documentation from inline source code comments
+---
+
 # SourceDocs
 
-[![Release](https://img.shields.io/github/release/eneko/sourcedocs.svg)](https://github.com/jhildensperger/SourceDocs/releases)
-[![Build Status](https://travis-ci.org/eneko/SourceDocs.svg?branch=master)](https://travis-ci.org/jhildensperger/SourceDocs)
-[![codecov](https://codecov.io/gh/eneko/SourceDocs/branch/master/graph/badge.svg)](https://codecov.io/gh/jhildensperger/SourceDocs)
+[![Release](https://img.shields.io/github/release/eneko/sourcedocs.svg)](https://github.com/eneko/SourceDocs/releases)
+[![Build Status](https://travis-ci.org/eneko/SourceDocs.svg?branch=master)](https://travis-ci.org/eneko/SourceDocs)
+[![codecov](https://codecov.io/gh/eneko/SourceDocs/branch/master/graph/badge.svg)](https://codecov.io/gh/eneko/SourceDocs)
 ![Swift 4.1](https://img.shields.io/badge/Swift-4.1-orange.svg)
 [![Swift Package Manager Compatible](https://img.shields.io/badge/spm-compatible-brightgreen.svg)](https://swift.org/package-manager)
 
@@ -23,37 +29,17 @@ within your project repository or render with GitHub Pages.
   private projects)
 - ✅ Browse reference documentation on GitHub Pages (great for public projects)
 
-## Installation
-
-Requirements:
-- Swift 4 runtime installed in your computer.
-
-### Homebrew
-
-    $ brew install jhildensperger/tap/sourcedocs
-
-### Swift Package Manager
-
-    $ git clone https://github.com/jhildensperger/SourceDocs.git
-    $ cd SourceDocs
-    $ make
-
 
 ## Usage
-To generate documentation from your source code, run the `sourcedocs` command directly
-from the root your project or use the `--source` option with the path to your source.
+To generate documentation from your source code, run the `sourcedocs` command
+directly from the root your project.
 
     $ cd ~/path/to/MyAppOrFramework
     $ sourcedocs generate
 
-or
-
-    $ sourcedocs generate --source ~/path/to/MyAppOrFramework
-
 This command will analyze your MyAppOrFramework project and generate reference
 documentation from all public types found. The documentation is written to
 the directory `Documentation/Reference` relative to the root of your project repository.
-You can also use the `--output` option to specific an output directory.
 
 ### Usage options
 Typing `sourcedocs help` we get a list of all available commands:
@@ -73,37 +59,19 @@ Typing `sourcedocs help <command>` we get a list of all options for that command
     Generates the Markdown documentation
 
     [--spm-module (string)]
-        Generate documentation for Swift Package Manager module.
+    	Generate documentation for Swift Package Manager module.
 
     [--module-name (string)]
-        Generate documentation for a Swift module.
+    	Generate documentation for a Swift module.
 
-    [--output (string)]
-        Output directory (defaults to Documentation/Reference).
-
-    [--source (string)]
-        Source directory (defaults to current directory).
-    
-    [--contents-filename (string)]
-        Filename used for the root markdown file (defaults to README).
-
-    --module-name-path|-m
-        Include the module name as part of the output folder path.
-
-    --extension-in-links|-e
-        Include the .md file extension in links.
+    [--output-folder (string)]
+    	Output directory (defaults to Documentation/Reference).
 
     --clean|-c
-        Delete output folder before generating documentation.
-
-    --collapsible|-l
-        Put methods, properties and enum cases inside collapsible blocks.
-     
-    --table-of-contents|-t
-        Generate a table of contents with properties and methods for each type.
+    	Delete output folder before generating documentation.
 
     [[]]
-        List of arguments to pass to xcodebuild.
+    	List of arguments to pass to xcodebuild.
 
 Usually, for most Xcode projects, no parameters are needed at all. `xcodebuild`
 should be able to find the default project and scheme.
@@ -132,8 +100,39 @@ We highly recommend adding the generated documentation to your source code
 repository, so it can be easily browsed inline. GitHub and BitBucket do a great
 job rendering Markdown files, so your documentation will be very nice to read.
 
+**Example Generated Documentation**
+
+![SourceDocs Example](http://www.enekoalonso.com/media/sourcedocs-example.png)
+
+
+## Installation
+
+### Download Binary
+
+    $ curl -Ls https://github.com/eneko/SourceDocs/releases/download/latest/sourcedocs.macos.zip -o /tmp/sourcedocs.macos.zip
+    $ unzip -j -d /usr/local/bin /tmp/sourcedocs.macos.zip 
+
+### From Sources
+Requirements:
+- Swift 4 runtime and Xcode installed in your computer.
+
+#### Using Homebrew
+
+    $ brew install sourcedocs
+
+#### Building with Swift Package Manager
+
+    $ git clone https://github.com/eneko/SourceDocs.git
+    $ cd SourceDocs
+    $ make
+
+
+## Contact
+Follow and contact me on Twitter at [@eneko](https://www.twitter.com/eneko).
+
+
 ## Contributions
-If you find an issue, just [open a ticket](https://github.com/jhildensperger/SourceDocs/issues/new)
+If you find an issue, just [open a ticket](https://github.com/eneko/SourceDocs/issues/new)
 on it. Pull requests are warmly welcome as well.
 
 
