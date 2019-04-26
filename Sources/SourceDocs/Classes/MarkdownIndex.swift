@@ -43,7 +43,7 @@ class MarkdownIndex: Writeable {
 
         fputs("Generating Markdown documentation...\n".green, stdout)
 
-        let status = [protocols, structs, classes, enums, flattenedExtensions, typealiases].compactMap {
+        let status = [protocols, structs, classes, enums, flattenedExtensions, typealiases, methods].compactMap {
             guard let documentables = $0 as? [Documentable] else {
                 return nil
             }
@@ -75,7 +75,7 @@ class MarkdownIndex: Writeable {
         try content.append(writeAndIndexFiles(items: enums, collectionTitle: "Enums"))
         try content.append(writeAndIndexFiles(items: flattenedExtensions, collectionTitle: "Extensions"))
         try content.append(writeAndIndexFiles(items: typealiases, collectionTitle: "Typealiases"))
-        try content.append(writeAndIndexFiles(items: methods, to: docsPath, collectionTitle: "Methods"))
+        try content.append(writeAndIndexFiles(items: methods, collectionTitle: "Methods"))
 
         try writeFile(file: CoverageBadge(coverage: coverage, basePath: basePath))
         try writeFile(file: MarkdownFile(filename: filename, basePath: basePath, content: content))

@@ -21,8 +21,7 @@ struct MarkdownMethod: SwiftDocDictionaryInitializable, MarkdownConvertible, Doc
 
     init?(dictionary: SwiftDocDictionary, options: MarkdownOptions) {
         let methods: [SwiftDeclarationKind] = [
-            .functionMethodInstance, .functionMethodStatic, .functionMethodClass,
-            .functionFree
+            .functionMethodInstance, .functionMethodStatic, .functionMethodClass, .functionFree
         ]
         guard dictionary.hasPublicACL && dictionary.isKind(methods) else {
             return nil
